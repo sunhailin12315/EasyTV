@@ -1,46 +1,80 @@
-# Getting Started with Create React App
+# EasyTV 轻视界
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+EasyTV（轻视界）是一个基于React开发的现代化播放器，支持移动端和桌面端访问，提供流畅的直播观看体验。简单易用，让观看电视变得轻松愉快。
 
-## Available Scripts
+## ✨ 特色功能
 
-In the project directory, you can run:
+- 🎯 支持自定义频道源：可通过设置界面自定义M3U格式的频道列表
+- 📺 多源切换：支持单个频道多个播放源，当前播放源失效时可快速切换
+- 📱 响应式设计：完美适配移动端和桌面端
+- 🗂️ 频道分类：支持按类别浏览和筛选频道
+- ⌨️ 键盘快捷操作：支持键盘导航和控制
+- 🎨 现代化界面：深色主题设计，提供舒适的观看体验
 
-### `npm start`
+## 🚀 快速开始
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+### 环境要求
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+- Node.js 16.0.0 或更高版本
+- npm 7.0.0 或更高版本
 
-### `npm test`
+### 安装步骤
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+1. 克隆项目到本地：
+```bash
+git clone [项目地址]
+cd iptv-mobile
+```
 
-### `npm run build`
+2. 安装依赖：
+```bash
+npm install
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+3. 启动开发服务器：
+```bash
+npm start
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+4. 打开浏览器访问 http://localhost:3000
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### 生产环境部署
 
-### `npm run eject`
+构建生产版本：
+```bash
+npm run build
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+## 📖 使用说明
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### 基本操作
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+- 频道切换：点击左侧频道列表中的频道进行切换
+- 分类筛选：点击顶部导航栏的分类进行频道筛选
+- 播放源切换：当前播放源无法播放时，可切换到备用源
+- 设置：点击顶部导航栏的"设置"按钮，可配置自定义频道源
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+### 键盘快捷键
 
-## Learn More
+- ← →：导航分类菜单
+- Enter：选择分类或频道
+- 空格：播放/暂停
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## 🛠 技术栈
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+- React 19.0
+- TypeScript
+- Styled Components
+- React Testing Library
+
+## 📄 开源协议
+
+本项目基于 MIT 协议开源。
+
+## 🤝 贡献指南
+
+欢迎提交Issue和Pull Request！
+
+## 📞 联系方式
+
+如有问题或建议，欢迎通过Issue与我们交流。
