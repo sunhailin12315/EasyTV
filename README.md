@@ -22,7 +22,7 @@ EasyTV（轻视界）是一个基于React开发的现代化播放器，支持移
 
 1. 克隆项目到本地：
 ```bash
-git clone [项目地址]
+git clone git@github.com:sunhailin12315/EasyTV.git
 cd iptv-mobile
 ```
 
