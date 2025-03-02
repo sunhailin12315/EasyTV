@@ -1,17 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 
+interface Program {
+  title: string;
+  startTime: string;
+  endTime: string;
+  description?: string;
+}
+
 interface Channel {
   id: string;
   name: string;
   logo?: string;
   category?: string;
   streamUrl: string;
+  currentProgram?: Program;
+  nextProgram?: Program;
 }
 
 interface ChannelListProps {
   channels: Channel[];
   onSelectChannel: (channel: Channel) => void;
+  onToggleFavorite?: (channelId: string) => void;
+  favoriteChannels?: string[];
 }
 
 const ListContainer = styled.div`
@@ -22,6 +33,32 @@ const ListContainer = styled.div`
   height: 100%;
   overflow-y: auto;
   padding: 10px;
+`;
+
+const SearchContainer = styled.div`
+  padding: 10px;
+  background-color: #333333;
+  border-radius: 8px;
+  margin-bottom: 10px;
+`;
+
+const SearchInput = styled.input`
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  background-color: #444444;
+  color: white;
+  font-size: 16px;
+  
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px #ff5722;
+  }
+  
+  &::placeholder {
+    color: #888888;
+  }
 `;
 
 const ChannelItem = styled.div<{ focused: boolean }>`
@@ -57,6 +94,25 @@ const ChannelName = styled.div`
   font-weight: 500;
 `;
 
+const ProgramInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin-left: 15px;
+  flex: 1;
+`;
+
+const CurrentProgram = styled.div`
+  color: #ffffff;
+  font-size: 14px;
+  margin-top: 4px;
+`;
+
+const NextProgram = styled.div`
+  color: #888888;
+  font-size: 12px;
+  margin-top: 2px;
+`;
+
 const PlaceholderLogo = styled.div`
   width: 50px;
   height: 50px;
@@ -70,8 +126,14 @@ const PlaceholderLogo = styled.div`
   border-radius: 5px;
 `;
 
-const ChannelList: React.FC<ChannelListProps> = ({ channels, onSelectChannel }) => {
+const ChannelList: React.FC<ChannelListProps> = ({ 
+  channels, 
+  onSelectChannel, 
+  onToggleFavorite, 
+  favoriteChannels = [] 
+}) => {
   const [focusedIndex, setFocusedIndex] = useState(0);
+  const [searchQuery, setSearchQuery] = useState('');
   
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -106,9 +168,21 @@ const ChannelList: React.FC<ChannelListProps> = ({ channels, onSelectChannel }) 
     }
   }, [focusedIndex]);
 
+  const filteredChannels = channels.filter(channel =>
+    channel.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <ListContainer>
-      {channels.map((channel, index) => (
+      <SearchContainer>
+        <SearchInput
+          type="text"
+          placeholder="搜索频道..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </SearchContainer>
+      {filteredChannels.map((channel, index) => (
         <ChannelItem
           key={channel.id}
           id={`channel-${index}`}
@@ -123,7 +197,27 @@ const ChannelList: React.FC<ChannelListProps> = ({ channels, onSelectChannel }) 
           ) : (
             <PlaceholderLogo>{channel.name.substring(0, 2).toUpperCase()}</PlaceholderLogo>
           )}
-          <ChannelName>{channel.name}</ChannelName>
+          <ProgramInfo>
+            <ChannelName>{channel.name}</ChannelName>
+            {channel.currentProgram && (
+              <CurrentProgram>
+                {channel.currentProgram.title}
+                ({channel.currentProgram.startTime} - {channel.currentProgram.endTime})
+              </CurrentProgram>
+            )}
+            {channel.nextProgram && (
+              <NextProgram>
+                下一个: {channel.nextProgram.title}
+                ({channel.nextProgram.startTime} - {channel.nextProgram.endTime})
+              </NextProgram>
+            )}
+          </ProgramInfo>
+          <div style={{ marginLeft: 'auto', cursor: 'pointer' }} onClick={(e) => {
+              e.stopPropagation();
+              onToggleFavorite?.(channel.id);
+            }}>
+              {favoriteChannels.includes(channel.id) ? '❤️' : '🤍'}
+            </div>
         </ChannelItem>
       ))}
     </ListContainer>

@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import './App.css';
 import Navigation from './components/Navigation';
 import ChannelList from './components/ChannelList';
-import VideoPlayer from './components/VideoPlayer';
+import VideoPlayer from './components/VideoPlayer/index';
 import Settings from './components/Settings';
 import { fetchChannels, getCategories } from './services/channelService';
 
@@ -63,6 +63,17 @@ function App() {
   const [selectedChannel, setSelectedChannel] = useState<Channel | null>(null);
   const [showSettings, setShowSettings] = useState(false);
   const [channelSource, setChannelSource] = useState<string>('');
+  const [favoriteChannels, setFavoriteChannels] = useState<string[]>([]);
+  const [channelGroups, setChannelGroups] = useState<{ [key: string]: string[] }>({});
+  const [currentGroup, setCurrentGroup] = useState<string>('');
+
+  // 从本地存储加载收藏的频道
+  useEffect(() => {
+    const savedFavorites = localStorage.getItem('favoriteChannels');
+    if (savedFavorites) {
+      setFavoriteChannels(JSON.parse(savedFavorites));
+    }
+  }, []);
 
   // 加载频道数据
   useEffect(() => {
@@ -74,14 +85,37 @@ function App() {
     loadChannels();
   }, [channelSource]);
 
-  // 根据分类筛选频道
+  // 根据分类和分组筛选频道
   useEffect(() => {
-    if (selectedCategory === 'all') {
-      setFilteredChannels(allChannels);
-    } else {
-      setFilteredChannels(allChannels.filter(channel => channel.category === selectedCategory));
+    let filtered = allChannels;
+    if (selectedCategory === 'favorites') {
+      filtered = allChannels.filter(channel => favoriteChannels.includes(channel.id));
+    } else if (selectedCategory === 'groups' && currentGroup) {
+      filtered = allChannels.filter(channel => channelGroups[currentGroup]?.includes(channel.id));
+    } else if (selectedCategory !== 'all') {
+      filtered = allChannels.filter(channel => channel.category === selectedCategory);
     }
-  }, [selectedCategory, allChannels]);
+    setFilteredChannels(filtered);
+  }, [selectedCategory, allChannels, favoriteChannels, channelGroups, currentGroup]);
+
+  // 从本地存储加载频道分组
+  useEffect(() => {
+    const savedGroups = localStorage.getItem('channelGroups');
+    if (savedGroups) {
+      setChannelGroups(JSON.parse(savedGroups));
+    }
+  }, []);
+
+  // 处理收藏切换
+  const handleToggleFavorite = (channelId: string) => {
+    setFavoriteChannels(prev => {
+      const newFavorites = prev.includes(channelId)
+        ? prev.filter(id => id !== channelId)
+        : [...prev, channelId];
+      localStorage.setItem('favoriteChannels', JSON.stringify(newFavorites));
+      return newFavorites;
+    });
+  };
 
   // 选择频道时的处理函数
   const handleSelectChannel = (channel: Channel) => {
@@ -91,6 +125,7 @@ function App() {
   // 选择分类时的处理函数
   const handleSelectCategory = (categoryId: string) => {
     setSelectedCategory(categoryId);
+    setCurrentGroup(''); // 重置当前分组
   };
 
   // 处理频道源保存
@@ -99,18 +134,16 @@ function App() {
     localStorage.setItem('channelSource', url);
   };
 
-  // 加载保存的频道源
-  useEffect(() => {
-    const savedSource = localStorage.getItem('channelSource');
-    if (savedSource) {
-      setChannelSource(savedSource);
-    }
-  }, []);
-
   return (
     <AppContainer>
       <Navigation 
-        items={[...categories, { id: 'settings', title: '设置' }]} 
+        items={[
+          { id: 'all', title: '全部' },
+          { id: 'favorites', title: '收藏' },
+          { id: 'groups', title: '分组' },
+          ...categories.filter(cat => cat.id !== 'all'),
+          { id: 'settings', title: '设置' }
+        ]} 
         onSelect={(id) => {
           if (id === 'settings') {
             setShowSettings(true);
@@ -123,7 +156,9 @@ function App() {
         <ChannelListSection>
           <ChannelList 
             channels={filteredChannels} 
-            onSelectChannel={handleSelectChannel} 
+            onSelectChannel={handleSelectChannel}
+            onToggleFavorite={handleToggleFavorite}
+            favoriteChannels={favoriteChannels}
           />
         </ChannelListSection>
         <VideoSection>
@@ -132,10 +167,10 @@ function App() {
               streamUrl={selectedChannel.streamUrl}
               title={selectedChannel.name}
               autoPlay={true}
-              onError={(error) => console.error('播放错误:', error)}
+              onError={(error: Error) => console.error('播放错误:', error)}
               channelNumber={selectedChannel.channelNumber}
               alternativeUrls={selectedChannel.alternativeUrls}
-              onUrlChange={(url) => {
+              onUrlChange={(url: string) => {
                 setSelectedChannel({
                   ...selectedChannel,
                   streamUrl: url
